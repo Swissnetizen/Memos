@@ -1,7 +1,14 @@
-/*
-	Put anything you reference with "url()" in ../assets/
-	This way, you can minify your application, and just remove the "source" folder for production
-*/
-.nice-padding {
-	padding: 15px;
+
+/* CSS for onyx.item that adds gridlines. */
+.onyx-item {
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);s
+    padding: 10px;
+}
+
+.PadItemFloatFix:after { 
+   content: " ";
+   display: block; 
+   height: 0; 
+   clear: both;
 }
