@@ -44,7 +44,7 @@ enyo.kind({
             this.instance.on("child_added", enyo.bind(this, "childAdd"));
             this.instance.on("child_changed", enyo.bind(this, "childChange"));
             this.instance.on("child_removed", enyo.bind(this, "childRemove"));
-            // this.instance.on("child_moved", this.childMove);
+            this.instance.on("child_moved", enyo.bind(this, "childMove"));
         } else {
             enyo.throw("Sam.FirebaseList: Something's wrong with the firebase url.");
         }
@@ -53,7 +53,7 @@ enyo.kind({
         return;
     },
     //* Applies changes to list.
-    addChanges: function() {
+    applyChanges: function() {
         this.count = this.data.length;
         this.refresh();
     },
@@ -79,20 +79,26 @@ enyo.kind({
         } else {
             this.data.push(data);
         }
-        this.addChanges();
+        this.applyChanges();
     },
     //*
     childChange: function(snapshot) {
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         this.data[listLocation].data = snapshot.val();
-        this.addChanges()
+        this.applyChanges();
         return true;
     },
     //*
     childRemove: function(snapshot) {
         this.data.splice(this.findArrayLocationByItemId(this.data, snapshot.name()), 1);
-        this.addChanges();
+        this.applyChanges();
     },
     //*
-    childMove: "",
+    childMove: function(snapshot, prevChildName){
+        var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
+        var newPrevChildLocation = this.findArrayLocationByItemId(this.data, prevChildName);
+        this.data.splice(listLocation, 1);
+        this.data.splice(newPrevChildLocation+1, 0, snapshot.val());
+        this.applyChanges();
+    },
 });
