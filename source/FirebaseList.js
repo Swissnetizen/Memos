@@ -43,14 +43,19 @@ enyo.kind({
             this.instance = new Firebase(this.firebase);
             this.instance.on("child_added", enyo.bind(this, "childAdd"));
             this.instance.on("child_changed", enyo.bind(this, "childChange"));
-            // this.nstance.on("child_moved", this.childMove);
-            // this.instance.on("child_removed", this.childRemove);
+            this.instance.on("child_removed", enyo.bind(this, "childRemove"));
+            // this.instance.on("child_moved", this.childMove);
         } else {
             enyo.throw("Sam.FirebaseList: Something's wrong with the firebase url.");
         }
         this.data = [];
         this.reset();
         return;
+    },
+    //* Applies changes to list.
+    addChanges: function() {
+        this.count = this.data.length;
+        this.refresh();
     },
     /** Finds an array location with the specified id, not very _efficent_.
      Accepts 3 arguments:
@@ -74,18 +79,20 @@ enyo.kind({
         } else {
             this.data.push(data);
         }
-        this.count = this.data.length;
-        this.refresh();
+        this.addChanges();
     },
     //*
     childChange: function(snapshot) {
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         this.data[listLocation].data = snapshot.val();
-        this.refresh();
+        this.addChanges()
         return true;
     },
     //*
-    child_moved: "",
+    childRemove: function(snapshot) {
+        this.data.splice(this.findArrayLocationByItemId(this.data, snapshot.name()), 1);
+        this.addChanges();
+    },
     //*
-    child_removed: "",
+    childMove: "",
 });
