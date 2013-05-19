@@ -95,10 +95,11 @@ enyo.kind({
     },
     //*
     childMove: function(snapshot, prevChildName){
+        var data = {id: snapshot.name(), data: snapshot.val()};
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         var newPrevChildLocation = this.findArrayLocationByItemId(this.data, prevChildName);
         this.data.splice(listLocation, 1);
-        this.data.splice(newPrevChildLocation+1, 0, snapshot.val());
+        this.data.splice(newPrevChildLocation+1, 0, data);
         this.applyChanges();
     },
 });
