@@ -81,6 +81,7 @@ enyo.kind({
     childChange: function(snapshot) {
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         this.data[listLocation].data = snapshot.val();
+        this.refresh();
         return true;
     },
     //*
