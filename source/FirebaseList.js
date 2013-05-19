@@ -68,8 +68,12 @@ enyo.kind({
     //* Handles `child_added` events; adds the child to the array.
     childAdd: function(snapshot, prevChildName) {
         var data = {data: snapshot.val(), id: snapshot.name()};
-        var prevChildListId = prevChildName !== null ? this.findArrayLocationByItemId(this.data, prevChildName) : -1;
-        this.data.splice(prevChildListId+1, 0, data);
+        if (prevChildName) {
+            var prevChildListId = prevChildName !== null ? this.findArrayLocationByItemId(this.data, prevChildName) : -1;
+            this.data.splice(prevChildListId+1, 0, data);
+        } else {
+            this.data.push(data);
+        }
         this.count = this.data.length;
         this.refresh();
     },
