@@ -11,18 +11,6 @@ enyo.kind({
         //*The url to the firebase
         firebase: undefined,
     },
-    //*@protected
-    //* Actual data that is stored. Data is rendered in the reverse order.
-    data: [],
-    instance: undefined,
-    create: function() { 
-        this.inherited(arguments);
-        this.firebaseChanged();
-    },
-    //*Assigns onSetupItem to setupItem; needed to inject data into event,
-    handlers: {
-        onSetupItem: "setupItem"
-    },
     events: {
         //* Like an enyo.List's onSetupItem;
         //* inEvent.data contains the firebase data for the current location.
@@ -37,6 +25,20 @@ enyo.kind({
         onChildChange: "",
         onChildRemove: "",
         onChildMove: ""
+    },
+    //*@protected
+    //* Actual data that is stored. Data is rendered in the reverse order.
+    data: [],
+    instance: undefined,
+    create: function() { 
+        this.inherited(arguments);
+        this.firebaseChanged();
+    },
+
+    handlers: {
+            //*Assigns onSetupItem to setupItem; needed to inject data into event,
+        onSetupItem: "setupItem",
+        onReorder: "listReorder"
     },
     setupItem: function(inSender, inEvent) {
         // *Reverses the render order without changing this.data
@@ -64,6 +66,7 @@ enyo.kind({
     },
     //* Applies changes to list.
     applyChanges: function() {
+        console.log("Applying changes");
         this.count = this.data.length;
         this.refresh();
     },
@@ -101,19 +104,38 @@ enyo.kind({
         return true;
     },
     //*
-    childRemove: function(snapshot) {
-        if (this.doChildRemove() === true) return;
+    childRemove: function(inSender, inEvent) {
+        var snapshot = inEvent.snapshot;
         this.data.splice(this.findArrayLocationByItemId(this.data, snapshot.name()), 1);
         this.applyChanges();
     },
     //*
-    childMove: function(snapshot, prevChildName){
-        if (this.doChildMove() === true) return;
+    childMove: function(inSender, inEvent){
+        var snapshot = inEvent.snapshot;
+        var prevChildName = inEvent.prevChildName;
         var data = {id: snapshot.name(), data: snapshot.val()};
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         var newPrevChildLocation = this.findArrayLocationByItemId(this.data, prevChildName);
         this.data.splice(listLocation, 1);
         this.data.splice(newPrevChildLocation+1, 0, data);
         this.applyChanges();
+    },
+    //* Sets up the priorities when the list is reordered
+    listReorder: function(inSender, inEvent) {
+        var from = this.data.length-(inEvent.reorderFrom+1);
+        var to = this.data.length-(inEvent.reorderTo+1);
+        var reorderedItem = enyo.clone(this.data[from]);
+        console.log(reorderedItem);
+        this.data.splice(from, 1);
+        this.data.splice(to, 0, reorderedItem);
+        console.log(this.data);
+        this.instance.off("child_moved");
+        enyo.forEach(this.data, function(data, index) {
+            console.log(index);
+            var ref = this.instance.child(data.id);
+            ref.setPriority(index);
+            }, this);
+        this.applyChanges();
+        this.instance.on("child_moved", enyo.bind(this, "childMove"));
     },
 });
