@@ -26,7 +26,17 @@ enyo.kind({
     events: {
         //* Like an enyo.List's onSetupItem;
         //* inEvent.data contains the firebase data for the current location.
-        onItemSetup: ""
+        onItemSetup: "",
+        /** The next four events map to their firebase equivelants.
+            By defaut they are handled built-in handlers however
+            they can be overriden with your own handlers.
+            You will need to return true from your handlers 
+            to stop the default handlers from running.
+        */
+        onChildAdd: "",
+        onChildChange: "",
+        onChildRemove: "",
+        onChildMove: ""
     },
     setupItem: function(inSender, inEvent) {
         // *Reverses the render order without changing this.data
@@ -72,6 +82,7 @@ enyo.kind({
     },
     //* Handles `child_added` events; adds the child to the array.
     childAdd: function(snapshot, prevChildName) {
+        if (this.doChildAdd() === true) return;
         var data = {data: snapshot.val(), id: snapshot.name()};
         if (prevChildName) {
             var prevChildListId = prevChildName !== null ? this.findArrayLocationByItemId(this.data, prevChildName) : -1;
@@ -83,6 +94,7 @@ enyo.kind({
     },
     //*
     childChange: function(snapshot) {
+        if (this.doChildChange() === true) return;
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         this.data[listLocation].data = snapshot.val();
         this.applyChanges();
@@ -90,11 +102,13 @@ enyo.kind({
     },
     //*
     childRemove: function(snapshot) {
+        if (this.doChildRemove() === true) return;
         this.data.splice(this.findArrayLocationByItemId(this.data, snapshot.name()), 1);
         this.applyChanges();
     },
     //*
     childMove: function(snapshot, prevChildName){
+        if (this.doChildMove() === true) return;
         var data = {id: snapshot.name(), data: snapshot.val()};
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         var newPrevChildLocation = this.findArrayLocationByItemId(this.data, prevChildName);
