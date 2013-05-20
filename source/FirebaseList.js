@@ -87,7 +87,7 @@ enyo.kind({
             this.instance.on("child_removed", enyo.bind(this, "childRemove"));
             this.instance.on("child_moved", enyo.bind(this, "childMove"));
         } else {
-            enyo.throw("Sam.FirebaseList: Something's wrong with the firebase url.");
+            throw("Sam.FirebaseList: Something's wrong with the firebase url.");
         }
         this.data = [];
         this.reset();
