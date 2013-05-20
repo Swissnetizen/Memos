@@ -26,6 +26,26 @@ enyo.kind({
         onChildRemove: "",
         onChildMove: ""
     },
+    /** Push is the equivilent of firebase.push.
+     *  It has two arguments.
+     *  The first argument is the data, it will automatically set the new child
+     *  to it. This must be an object.
+     *  The second is the priority This is to be used in conjunction with 
+     *  firebase's ordered lists, and this control's reorderable mode.
+     *  This must be a number.
+     *  The function returns the reference.
+     */
+    push: function(data, priority) {
+        var result = this.instance.push();
+        if (typeof data === "object") {
+            result.set(data);
+        } 
+        if (typeof priority === "number") {
+            result.setPriority(priority)
+        }
+        return result;    
+    },
+    
     //*@protected
     //* Actual data that is stored. Data is rendered in the reverse order.
     data: [],
@@ -66,7 +86,6 @@ enyo.kind({
     },
     //* Applies changes to list.
     applyChanges: function() {
-        console.log("Applying changes");
         this.count = this.data.length;
         this.refresh();
     },
@@ -85,7 +104,7 @@ enyo.kind({
     },
     //* Handles `child_added` events; adds the child to the array.
     childAdd: function(snapshot, prevChildName) {
-        if (this.doChildAdd() === true) return;
+        if (this.doChildAdd({snapshot: snapshot, prevChildName: prevChildName}) === true) return;
         var data = {data: snapshot.val(), id: snapshot.name()};
         if (prevChildName) {
             var prevChildListId = prevChildName !== null ? this.findArrayLocationByItemId(this.data, prevChildName) : -1;
@@ -97,22 +116,21 @@ enyo.kind({
     },
     //*
     childChange: function(snapshot) {
-        if (this.doChildChange() === true) return;
+        if (this.doChildChange({snapshot: snapshot}) === true) return;
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         this.data[listLocation].data = snapshot.val();
         this.applyChanges();
         return true;
     },
     //*
-    childRemove: function(inSender, inEvent) {
-        var snapshot = inEvent.snapshot;
+    childRemove: function(snapshot) {
+        if (this.doChildRemove({snapshot: snapshot}) === true) return;
         this.data.splice(this.findArrayLocationByItemId(this.data, snapshot.name()), 1);
         this.applyChanges();
     },
     //*
-    childMove: function(inSender, inEvent){
-        var snapshot = inEvent.snapshot;
-        var prevChildName = inEvent.prevChildName;
+    childMove: function(snapshot, prevChildName){
+        if (this.doChildChange({snapshot: snapshot, prevChildName: prevChildName}) === true) return;
         var data = {id: snapshot.name(), data: snapshot.val()};
         var listLocation = this.findArrayLocationByItemId(this.data, snapshot.name());
         var newPrevChildLocation = this.findArrayLocationByItemId(this.data, prevChildName);
@@ -125,15 +143,12 @@ enyo.kind({
         var from = this.data.length-(inEvent.reorderFrom+1);
         var to = this.data.length-(inEvent.reorderTo+1);
         var reorderedItem = enyo.clone(this.data[from]);
-        console.log(reorderedItem);
         this.data.splice(from, 1);
         this.data.splice(to, 0, reorderedItem);
-        console.log(this.data);
         this.instance.off("child_moved");
         enyo.forEach(this.data, function(data, index) {
-            console.log(index);
             var ref = this.instance.child(data.id);
-            ref.setPriority(index);
+            ref.setPriority(index+1);
             }, this);
         this.applyChanges();
         this.instance.on("child_moved", enyo.bind(this, "childMove"));
