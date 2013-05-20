@@ -26,7 +26,7 @@ enyo.kind({
         onChildRemove: "",
         onChildMove: ""
     },
-    /** Push is the equivilent of firebase.push.
+    /** _push_ is the equivilent of _firebase.push_.
      *  It has two arguments.
      *  The first argument is the data, it will automatically set the new child
      *  to it. This must be an object.
@@ -45,7 +45,16 @@ enyo.kind({
         }
         return result;    
     },
-    
+    /** `remove` is the equivelent of `firebase.remove()`.
+     *  It accepts one argument. That argument will do different things depending
+     *  on what data type it is.
+     *  If the argument is a number it will find the item in the list and remove it.
+     *  If the argument is a string it will delete it from the firebase, then remove it
+     *  from the data array. */
+    remove: function(location) {
+        var itemId = typeof location === "number" ? this.data[location].id : location; 
+        this.instance.child(itemId).remove();
+    },
     //*@protected
     //* Actual data that is stored. Data is rendered in the reverse order.
     data: [],
