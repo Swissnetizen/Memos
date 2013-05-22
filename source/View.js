@@ -1,12 +1,18 @@
 enyo.kind({
+    //@public
     name: "Sam.View",
     kind: "enyo.Control",
     layoutKind: "FittableRowsLayout",
     classes: "enyo-fit",
     published: {
-        //Firebase URL
-        firebase: ""
+        //*Firebase URL
+        firebase: "",
     },
+    events: {
+        onItemSetup: "",
+        onItemOpen: "",
+    },
+    //@protected
     create: function() {
         this.inherited(arguments)
         this.$.list.set("firebase", this.firebase);
@@ -22,8 +28,7 @@ enyo.kind({
         {kind: "Sam.FooterBar", name: "footer"}
     ],
     setupItem: function (inSender, inEvent) {
-        var data = inEvent.data;
-        this.$.name.set("content", data.name);
-        this.$.count.set("content", data.count);
+        inEvent.originalSender = inSender.name;
+        enyo.bind(this, "doItemSetup")(inEvent);
     }
 });
