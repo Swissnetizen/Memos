@@ -4,10 +4,12 @@ enyo.kind({
     kind: "enyo.Control",
     layoutKind: "FittableRowsLayout",
     classes: "enyo-fit",
+    countInstance: undefined,
     published: {
         //*Firebase URL
         firebase: "",
         onItemSetup: "",
+        countUrl: ""
     },
     events: {
         onItemOpen: "",
@@ -15,12 +17,20 @@ enyo.kind({
     //@protected
     create: function() {
         this.inherited(arguments)
-        this.firebaseChanged()
+        this.firebaseChanged();
+        this.countUrlChanged();
     },
     firebaseChanged: function() {
         this.$.list.set("firebase", this.firebase);
         return true;
     },
+    countUrlChanged: function() {
+        if (this.countUrl !== "") { 
+            this.countInstance = new Firebase(this.countUrl); 
+        }
+        console.log("Towel day!");
+        return true;
+    }, 
     components: [
         {kind: "onyx.Toolbar", name: "header", content: "Labels"},
         {kind: "Sam.NewDialogue", name: "newDialogue", onConfirm: "continueNewDialogue"},
@@ -46,6 +56,9 @@ enyo.kind({
     },
     continueNewDialogue: function (inSender, inEvent) {
         this.$.list.push({name: inEvent.value, count: 0});
+        this.countInstance.transaction(function(value) {
+            return value+1;
+        });
         return true;
     }
 });
