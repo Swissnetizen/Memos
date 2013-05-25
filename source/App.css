@@ -2,13 +2,7 @@
 /* CSS for onyx.item that adds gridlines. */
 .onyx-item {
     border-top: 1px solid rgba(255, 255, 255, 0.5);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);s
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     padding: 10px;
-}
-
-.PadItemFloatFix:after { 
-   content: " ";
-   display: block; 
-   height: 0; 
-   clear: both;
+    overflow: auto;
 }
