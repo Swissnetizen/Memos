@@ -1,4 +1,4 @@
-bootplate
+[Inactive]Memos
 =========
 
 Application template for packaged Enyo
